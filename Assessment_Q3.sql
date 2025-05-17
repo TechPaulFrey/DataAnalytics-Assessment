@@ -11,26 +11,26 @@ active_customers AS (
     SELECT
         uc.id AS customer_id,
         CONCAT(uc.first_name, ' ', uc.last_name) AS name,
-        pt.id AS plan_id,
+        pp.id AS plan_id,
         CASE 
             WHEN pp.is_regular_savings = 1 THEN 'Savings'
             WHEN pp.is_a_fund = 1 THEN 'Investment'
             ELSE 'Other'
         END AS plan_type
-    FROM users_customuser u
+    FROM users_customuser uc
     INNER JOIN plans_plan pp ON uc.id = pp.owner_id
     WHERE pp.is_regular_savings = 1 OR pp.is_a_fund = 1
 ),
 inactivity_check AS (
     SELECT
-        a.customer_id,
-        a.name,
-        a.plan_id,
-        a.plan_type,
-        l.last_transaction_date,
-        DATEDIFF(CURDATE(), l.last_transaction_date) AS inactivity_days
-    FROM active_customers a
-    LEFT JOIN latest_transactions l ON a.customer_id = l.owner_id
+        ac.customer_id,
+        ac.name,
+        ac.plan_id,
+        ac.plan_type,
+        lt.last_transaction_date,
+        DATEDIFF(CURDATE(), lt.last_transaction_date) AS inactivity_days
+    FROM active_customers ac
+    LEFT JOIN latest_transactions lt ON ac.customer_id = lt.owner_id
 )
 SELECT *
 FROM inactivity_check
